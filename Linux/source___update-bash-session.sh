@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Based on https://hackprogramming.com/2-ways-to-permanently-set-path-variable-in-ubuntu/
+
 # globally /etc/environment (all users)
 PATH = /usr/local/sbin:/usr/local/bin:/PATH_TO_BE_ADDED
 source /etc/environment && export PATH
