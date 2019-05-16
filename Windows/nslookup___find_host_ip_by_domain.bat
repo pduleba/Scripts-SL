@@ -1,0 +1,1 @@
+nslookup some-alb-id.us-east-1.elb.amazonaws.com
