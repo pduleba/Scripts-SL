@@ -1,0 +1,61 @@
+sudo apt-get update
+sudo apt-get upgrade
+
+sudo apt-get install figlet
+sudo apt-get install toilet
+sudo echo toilet -w 100 -f slant --metal PDULEBA-LINUX >> /etc/bash.bashrc
+
+# Install OpenJDK
+sudo apt-get install openjdk-8-jdk
+sudo echo JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 >> /etc/bash.bashrc
+
+# Install git
+sudo apt-get install git
+
+# Install Maven
+sudo apt-get install maven
+sudo ln -sf /usr/share/maven/bin/mvn /usr/bin/mvn
+sudo echo MAVEN_HOME=/usr/share/maven >> /etc/bash.bashrc
+
+# Install JQ
+sudo apt-get install jq
+
+# Install AWS CLI
+sudo pip install awscli
+
+# Install docker (https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+# TBC
+
+# Install ansible
+sudo pip install ansible
+
+# Install terraform
+sudo apt-get install unzip
+sudo wget -O ~/terraform_0.12.1_linux_amd64.zip https://releases.hashicorp.com/terraform/0.12.1/terraform_0.12.1_linux_amd64.zip
+sudo unzip ~/terraform_0.12.1_linux_amd64.zip -d ~/
+sudo mv ~/terraform /usr/local/bin/
+
+# Install Python 3.7
+sudo apt install python3.7
+sudo ln -sf python3.7 /usr/bin/python
+sudo ln -sf python3.7 /usr/bin/python3
+
+# Install Pip 3.7
+sudo apt install python3-pip
+sudo python3.7 -m pip install pip
+sudo pip3 install --upgrade pip
+
+sudo rm -rf /usr/bin/pip3
+sudo rm -rf /usr/local/bin/pip3
+sudo ln -sf pip /usr/local/bin/pip3
+
+# Cleanup
+sudo apt autoremove
+
+#### Ubuntu Subsystem (WSL) -> How to Ignore parent system PATH?
+# HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Lxss\{GUID}\Flags
+# 7 -> 5 
+
+#### Ubuntu Subsystem (WSL) -> Reboot
+# https://www.how2shout.com/how-to/how-to-reboot-wsl-windows-subsystem-linux-in-windows-10.html
+# LasssManager in services
