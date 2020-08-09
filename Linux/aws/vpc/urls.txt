@@ -1,0 +1,4 @@
+curl -X GET https://3anufpqcoc-vpce-05a833adc2310d1ca.execute-api.eu-west-1.amazonaws.com/private-api?msg=aws-dns
+
+
+curl -X GET https://private.dev.securetrading.tv/?msg=private-hosted-zone-dns -k

@@ -1,0 +1,29 @@
+######################################################################################
+# IAM Authentication
+######################################################################################
+export MYSQL_PWD="$(aws rds generate-db-auth-token --hostname DOMAIN --port 3306 --username root --region eu-west-1)"
+mysql --host=DOMAIN --ssl-ca /var/local/rds-combined-ca-bundle.pem --port=3306 --user=root --enable-cleartext-plugin --database=database
+
+
+######################################################################################
+# PASSWORD Authentication
+######################################################################################
+export MYSQL_PWD=PASS
+mysql --host=DOMAIN --port=3306 --user=root --database=database -p
+
+
+######################################################################################
+# REPLICATION
+######################################################################################
+aws rds describe-db-clusters --db-cluster-identifier ID --region eu-west-1 | jq -r ".DBClusters[].ReplicationSourceIdentifier"
+aws rds describe-db-instances --db-instance-identifier ID --region eu-west-1 | jq -r ".DBInstances[].StatusInfos"
+
+aws rds describe-db-clusters --db-cluster-identifier ID --region eu-west-2 | jq -r ".DBClusters[].ReplicationSourceIdentifier"
+aws rds describe-db-instances --db-instance-identifier ID --region eu-west-2 | jq -r ".DBInstances[].StatusInfos"
+
+
+######################################################################################
+# CURL
+######################################################################################
+curl -k -X GET HOST
+curl -k -X POST HOST -d @data.json -H "Content-Type:application/json" -H "Authorization: Bearer token"

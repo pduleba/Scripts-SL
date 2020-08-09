@@ -1,0 +1,59 @@
+### Update
+sudo apt-get update
+
+--------------------------------- Password based Authentication
+
+### MySQL
+sudo apt-get install mysql-client -y
+mysql -u rulesmanageruser -h DB_HOST -D rulesmanagerdb -P 3306 -p
+# List databases
+show tables;
+
+### PostgreSQL
+sudo apt-get install postgresql-client -y 
+psql -U rulesmanageruser -h DB_HOST -d rulesmanagerdb -p 5432 -W
+# List databases
+\dt
+
+--------------------------------- IAM based Authentication
+
+apt update
+apt install mysql-client
+apt install python3-pip
+pip3 install --upgrade pip
+pip3 install awscli
+cd /home/ssm-user
+wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+chown ssm-user:ssm-user /home/ssm-user/rds-combined-ca-bundle.pem
+# change default shell for ssm-user to /bin/bash
+
+sudo su
+
+export MYSQL_PWD="$(aws rds generate-db-auth-token --hostname DB_HOST --port 3306 --username rulesmanagerssmuser --region eu-west-1)"
+mysql --host=DB_HOST --ssl-ca /var/local/rds-combined-ca-bundle.pem --port=3306 --user=rulesmanagerssmuser --enable-cleartext-plugin --database=rulesmanagerdb
+ -e 'select transaction_reference from transaction limit 1'
+
+
+--------------------------------- DEMO
+--- CONNECTION (IAM)
+export MYSQL_PWD="$(aws rds generate-db-auth-token --hostname dev-rm-duleba-aurora-cluster.cluster-ck8r5lfqfcul.eu-west-1.rds.amazonaws.com --port 3306 --username rulesmanagerssmuser --region eu-west-1)"
+echo $MYSQL_PWD
+mysql --host=dev-rm-duleba-aurora-cluster.cluster-ck8r5lfqfcul.eu-west-1.rds.amazonaws.com --ssl-ca /var/local/rds-combined-ca-bundle.pem --port=3306 --user=rulesmanagerssmuser --enable-cleartext-plugin --database=rulesmanagerdb
+
+--- CONNECTION (PASSWORD)
+ssh ec2-user@35.179.17.99 -i pduleba-643410808813-dev-london-key.pem
+mysql -u rulesmanageruser -h dev-rm-duleba-aurora-cluster-crr.cluster-clwpcypwwznb.eu-west-2.rds.amazonaws.com -D rulesmanagerdb -P 3306 -p
+8egMlmg6iqX3AsHq
+
+--- EXISTING TABLE
+show tables;
+SELECT base_amount FROM transaction WHERE id = 1;
+UPDATE transaction SET base_amount = 500 WHERE id = 1;
+
+--- NON EXISTING TABLE
+CREATE TABLE demo ( id INT AUTO_INCREMENT PRIMARY KEY, value VARCHAR(255) NOT NULL);
+INSERT INTO demo(value) VALUES ('Demo time');
+UPDATE demo SET value = 'Smok rulez' WHERE id = 1;
+DELETE FROM demo WHERE ID=1;
+DROP TABLE demo;
+SELECT * FROM demo;

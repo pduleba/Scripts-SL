@@ -1,0 +1,140 @@
+------------------------------------------------------------------
+### SOURCE
+------------------------------------------------------------------
+EC2			:: ssh ec2-user@3.8.203.12 -i pduleba-643410808813-dev-key.pem 
+VPC-ID 		:: vpc-00178b08eeee0a08c
+------------------------------------------------------------------
+### TARGET 
+------------------------------------------------------------------
+VPC-E 		:: vpce-0e312850bee5ad2f1
+VPC-E DNS	:: vpce-0e312850bee5ad2f1-rdpv01eu.execute-api.eu-west-2.vpce.amazonaws.com
+VPC-ID 		:: vpc-0717bbfc7aefefebb
+API PUBLIC	:: https://ndo6dec6gd.execute-api.eu-west-2.amazonaws.com/public?msg=ok
+			curl -X GET https://ndo6dec6gd.execute-api.eu-west-2.amazonaws.com/public?msg=ok
+			ndo6dec6gd.execute-api.eu-west-2.amazonaws.com
+API PRIVATE :: https://umn579e9lk.execute-api.eu-west-2.amazonaws.com/private?msg=ok
+			curl -X GET https://umn579e9lk.execute-api.eu-west-2.amazonaws.com/private?msg=ok
+			umn579e9lk.execute-api.eu-west-2.amazonaws.com
+
+Route53+CERT
+			pduleba-public.test.securetrading.tv
+			pduleba-private.test.securetrading.tv
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-private-api-test-invoke-url.html
+https://docs.aws.amazon.com/apigateway/latest/developerguide/associate-private-api-with-vpc-endpoint.html
+
+##############################################################################
+### Invoking Your Private API Using Private DNS Names
+##############################################################################
+Private DNS needs to be enabled
+Public DNS is not working :(
+
+##############################################################################
+### Accessing Your Private API Using AWS Direct Connect
+##############################################################################
+You cannot use private DNS names to access your private API from an on-premises network.
+
+##############################################################################
+### Accessing Your Private API Using a Route53 Alias
+##############################################################################
+
+aws apigateway update-rest-api \
+    --rest-api-id umn579e9lk \
+    --patch-operations "op='add',path='/endpointConfiguration/vpcEndpointIds',value='vpce-0e312850bee5ad2f1'" \
+    --region eu-west-2
+
+https://{rest-api-id}-{vpce-id}.execute-api.{region}.amazonaws.com/{stage}
+
+curl -X GET https://umn579e9lk-vpce-0e312850bee5ad2f1.execute-api.eu-west-2.amazonaws.com/private
+
+
+##############################################################################
+### Invoking Your Private API Using Endpoint-Specific Public DNS Hostnames
+##############################################################################
+curl -v https://{public-dns-hostname}.execute-api.{region}.vpce.amazonaws.com/test -H 'Host: 01234567ab.execute-api.us-west-2.amazonaws.com'
+curl -v https://{public-dns-hostname}.execute-api.{region}.vpce.amazonaws.com/test -H'x-apigw-api-id:{api-id}'
+
+curl -X GET https://vpce-0e312850bee5ad2f1-rdpv01eu.execute-api.eu-west-2.vpce.amazonaws.com/private -H 'Host: umn579e9lk.execute-api.eu-west-2.amazonaws.com'
+curl -X GET https://vpce-0e312850bee5ad2f1-rdpv01eu.execute-api.eu-west-2.vpce.amazonaws.com/private -H 'x-apigw-api-id:umn579e9lk'
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+nslookup pduleba-public.test.securetrading.tv
+nslookup pduleba-private.test.securetrading.tv
+nslookup umn579e9lk-vpce-0e312850bee5ad2f1.execute-api.eu-west-2.amazonaws.com
+
+https://aws.amazon.com/premiumsupport/knowledge-center/private-hosted-zone-different-account/
+
+# SOURCE
+aws route53 create-vpc-association-authorization --hosted-zone-id Z02027452BMIPFZR3U62I --vpc VPCRegion=eu-west-1,VPCId=vpc-00178b08eeee0a08c
+# DEST
+aws route53 associate-vpc-with-hosted-zone 		 --hosted-zone-id Z02027452BMIPFZR3U62I --vpc VPCRegion=eu-west-1,VPCId=vpc-00178b08eeee0a08c
+# SOURCE
+aws route53 delete-vpc-association-authorization --hosted-zone-id Z02027452BMIPFZR3U62I --vpc VPCRegion=eu-west-1,VPCId=vpc-00178b08eeee0a08c
+
+nslookup pduleba-private.test.securetrading.tv
+nslookup umn579e9lk.execute-api.eu-west-2.amazonaws.com
+curl -X GET https://umn579e9lk-vpce-0e312850bee5ad2f1.execute-api.eu-west-2.amazonaws.com/private?msg=ok
+curl -k -X GET https://pduleba-private.test.securetrading.tv/?msg=ok
+
+##############################################################################
+### DEMO
+##############################################################################
+
+				securetrading.int
+			dev.securetrading.int
+rulemanager.dev.securetrading.int
+
+https://www.selfsignedcertificate.com/
+openssl genrsa -out rulemanager.dev.securetrading.int.key 2048
+openssl req -new -x509 -key rulemanager.dev.securetrading.int.key -out rulemanager.dev.securetrading.int.cert -days 3650 -subj /CN=rulemanager.dev.securetrading.int
+
+curl -X GET https://3anufpqcoc.execute-api.eu-west-1.amazonaws.com/private-api?msg=ok
+curl -X GET https://3anufpqcoc-vpce-0223f0b66694c81aa.execute-api.eu-west-1.amazonaws.com/private-api?msg=ok
+curl -X GET https://private.dev.securetrading.tv/?msg=ok -k
+
+
+{
+    "transaction_reference": "rm-demo-1",
+    "transaction_started_timestamp": "2019-12-05 08:00",
+    "merchant_name": "rm-demo-1",
+    "status": "NEW",
+    "base_amount": 500,
+    "encrypted_pan": "rm-demo-1",
+    "site_reference": "rm-demo-1"
+}
+
+curl -X GET https://61g4n6858c.execute-api.eu-west-1.amazonaws.com/dev-rm-default?msg=ok
+curl -X GET https://61g4n6858c-vpce-0223f0b66694c81aa.execute-api.eu-west-1.amazonaws.com/dev-rm-default?msg=ok
+curl -X GET https://rulemanager.dev.securetrading.int/?msg=ok -k
+
+
+curl -d "@data.json" -X POST https://61g4n6858c.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions | jq
+curl -d "@data.json" -X POST https://61g4n6858c.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
+
+curl -d "@data.json" -X POST https://61g4n6858c-vpce-0223f0b66694c81aa.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions | jq
+curl -d "@data.json" -X POST https://61g4n6858c-vpce-0223f0b66694c81aa.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
+
+curl -d "@data.json" -X POST https://rulemanager.dev.securetrading.int/transactions -k | jq
+curl -d "@data.json" -X POST https://rulemanager.dev.securetrading.int/transactions -k -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
+
+
+
+curl -d "@data2.json" -X PUT https://61g4n6858c.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions/1234567891 | jq
+curl -d "@data2.json" -X PUT https://61g4n6858c.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions/1234567891 -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
+
+curl -d "@data2.json" -X PUT https://61g4n6858c-vpce-0223f0b66694c81aa.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions/1234567891 | jq
+curl -d "@data2.json" -X PUT https://61g4n6858c-vpce-0223f0b66694c81aa.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions/1234567891 -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
+
+curl -d "@data2.json" -X PUT https://rulemanager.dev.securetrading.int/transactions/1234567891 -k | jq
+curl -d "@data2.json" -X PUT https://rulemanager.dev.securetrading.int/transactions/1234567891 -k -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
+
+
+curl -d "@data3.json" -X POST https://61g4n6858c.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions/1234567891/check-rules | jq
+curl -d "@data3.json" -X POST https://61g4n6858c.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions/1234567891/check-rules -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
+
+curl -d "@data3.json" -X POST https://61g4n6858c-vpce-0223f0b66694c81aa.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions/1234567891/check-rules | jq
+curl -d "@data3.json" -X POST https://61g4n6858c-vpce-0223f0b66694c81aa.execute-api.eu-west-1.amazonaws.com/dev-rm-default/transactions/1234567891/check-rules -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
+
+curl -d "@data3.json" -X POST https://rulemanager.dev.securetrading.int/transactions/1234567891/check-rules -k | jq
+curl -d "@data3.json" -X POST https://rulemanager.dev.securetrading.int/transactions/1234567891/check-rules -k -H 'x-api-key: tEuqDDQCrn68bg7B7Nd5y6yW6AznzbxDaPX2Pouf' | jq
