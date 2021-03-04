@@ -1,0 +1,9 @@
+
+--------------------------------- Amazon RDS CA
+
+https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
+--------------------------------- Connecting Programmatically to Amazon DocumentDB
+
+https://docs.aws.amazon.com/documentdb/latest/developerguide/connect_programmatically.html
+

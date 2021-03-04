@@ -1,6 +1,11 @@
 ### Update
 sudo apt-get update
 
+
+--------------------------------- Amazon RDS CA
+
+https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
 --------------------------------- Password based Authentication
 
 ### MySQL
